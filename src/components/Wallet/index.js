@@ -61,7 +61,6 @@ const Wallet = () => {
     const loadBalance = async () => {
       const { contract, web3 } = web3Api
       const balance = await web3.eth.getBalance(account)
-      console.log(balance)
       setBalance(web3.utils.fromWei(balance, "ether"))
     }
     account && loadBalance()
@@ -72,10 +71,8 @@ const Wallet = () => {
     const { contract, web3 } = web3Api
     const value = document.getElementById('amount').value;
     const receiver = document.getElementById('receiver').value;
-    console.log(web3Api.contract.address)
-    console.log(receiver)
     await contract.mint(
-      account,
+      receiver,
       web3.utils.toWei(value.toString(), "ether"),
       {
         from: account
