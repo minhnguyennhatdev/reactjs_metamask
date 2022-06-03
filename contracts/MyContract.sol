@@ -6,9 +6,8 @@ contract MyContract is ERC20 {
   address public admin;
   mapping(address => uint) balance;
 
-  event _mint(address to, uint amount);
-  constructor() ERC20("MyToken", "MTK") {
-    _mint(msg.sender, 10000 * 10 ** 18);
+  constructor(uint256 _supply) ERC20("MyToken", "MTK") {
+    _mint(msg.sender, _supply *(10 ** decimals()));
     admin = msg.sender;
   }
 

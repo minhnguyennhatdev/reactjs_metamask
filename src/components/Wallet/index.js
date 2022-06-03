@@ -86,8 +86,9 @@ const Wallet = () => {
   }, [web3Api, account])
 
   const getTotalSupply = useCallback(async () => {
-    const { contract } = web3Api
-    console.log( await contract.totalSupply())
+    const { contract, web3 } = web3Api
+    const totalSupply = await contract.totalSupply()
+    console.log( web3.utils.fromWei(totalSupply, 'ether'))
     reloadEffect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3Api, account])
