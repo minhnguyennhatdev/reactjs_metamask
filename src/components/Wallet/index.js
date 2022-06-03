@@ -86,6 +86,7 @@ const Wallet = () => {
     const { contract, web3 } = web3Api
     const totalSupply = await contract.totalSupply()
     console.log( web3.utils.fromWei(totalSupply, 'ether'))
+    alert(`Total supply: ${web3.utils.fromWei(totalSupply, 'ether')} ETH`)
     reloadEffect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3Api, account])
@@ -130,7 +131,7 @@ const Wallet = () => {
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={mint}>
                   Mint
                 </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={getTotalSupply}>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={getTotalSupply}>
                   Get Total Supply
                 </button>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={send}>
