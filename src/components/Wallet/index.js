@@ -60,7 +60,7 @@ const Wallet = () => {
   useEffect(() => {
     const loadBalance = async () => {
       const { contract, web3 } = web3Api
-      const balance = await web3.eth.getBalance(account)
+      const balance = await contract.balanceOf(account)
       setBalance(web3.utils.fromWei(balance, "ether"))
     }
     account && loadBalance()
@@ -71,11 +71,14 @@ const Wallet = () => {
     const { contract, web3 } = web3Api
     const value = document.getElementById('amount').value;
     const receiver = document.getElementById('receiver').value;
+
+    console.log(`from ${account} to ${receiver}`)
+
     await contract.mint(
       receiver,
       web3.utils.toWei(value.toString(), "ether"),
       {
-        from: account
+        from: "0x0b7Aa818E2d1C34ae314D8deC075d071020478f3"
       }
     )
     reloadEffect()
@@ -119,7 +122,7 @@ const Wallet = () => {
             >
               <Card.Title className="truncate text-lg" >Account: {account ? account : "Account denied"}</Card.Title>
             </OverlayTrigger>
-            <Card.Text className="text-lg">$ {balance} ETH</Card.Text>
+            <Card.Text className="text-lg">$ {balance} MTK (MyToken)</Card.Text>
             <form className="bg-white rounded pt-1 pb-3">
               <div className="mb-3">
                 <input className="appearance-none border rounded w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="receiver" type="text" placeholder="Receiver" />
