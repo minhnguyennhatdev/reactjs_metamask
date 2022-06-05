@@ -27,7 +27,7 @@ const Wallet = () => {
 
   // detect Metamask account change
   window.ethereum.on('accountsChanged', function (accounts) {
-    loadProvider()
+    getAccount()
   });
 
   const loadProvider = async () => {
@@ -79,8 +79,6 @@ const Wallet = () => {
     const value = document.getElementById('amount').value;
     const receiver = document.getElementById('receiver').value;
 
-    console.log(`from ${account} to ${receiver}`)
-
     await contract.mint(
       receiver,
       web3.utils.toWei(value.toString(), "ether"),
@@ -95,7 +93,7 @@ const Wallet = () => {
   const getTotalSupply = useCallback(async () => {
     const { contract, web3 } = web3Api
     const totalSupply = await contract.totalSupply()
-    console.log(web3.utils.fromWei(totalSupply, 'ether'))
+
     alert(`Total supply: ${web3.utils.fromWei(totalSupply, 'ether')} ETH`)
     reloadEffect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,8 +103,6 @@ const Wallet = () => {
     const { contract, web3 } = web3Api
     const amount = document.getElementById('amount').value;
     const receiver = document.getElementById('receiver').value;
-
-    console.log(`from: ${account} to: ${receiver} amount: ${amount} `)
 
     await contract.transfer(
       receiver,
@@ -120,63 +116,66 @@ const Wallet = () => {
   }, [web3Api, account])
 
   return (
-    <Card className="w-96 h-auto">
-      <Card.Img variant="top" src={account ? avatar : noavatar} />
-      <Card.Body>
-        {account ? (
-          <>
-            <OverlayTrigger
-              key={account}
-              placement="top"
-              delay={{ show: 250, hide: 400 }}
-              overlay={
-                <Tooltip id={`tooltip-${account}`}>
-                  <strong>{account}</strong>.
-                </Tooltip>
-              }
-            >
-              <Card.Title className="truncate text-lg" >Account: {account ? account : "Account denied"}</Card.Title>
-            </OverlayTrigger>
-            <Card.Text className="text-lg">$ {balance} MTK (MyToken)</Card.Text>
-            <form className="bg-white rounded pt-1 pb-3">
-              <div className="mb-3">
-                <input className="appearance-none border rounded w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="receiver" type="text" placeholder="Receiver" />
-              </div>
-              <div className="mb-3">
-                <input className="appearance-none border rounded w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="amount" type="text" placeholder="Amount" />
-              </div>
-              <div className="flex justify-between">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={mint}>
-                  Mint
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={getTotalSupply}>
-                  Get Total Supply
-                </button>
+    <>
+      <Card className="w-auto h-fit max-w-md">
+        <Card.Body>
+        {/* <Card.Img variant="top" src={account ? avatar : noavatar} className="object-contain w-2/3 h-auto"/> */}
+          {account ? (
+            <>
+              <OverlayTrigger
+                key={account}
+                placement="top"
+                delay={{ show: 250, hide: 1500 }}
+                overlay={
+                  <Tooltip id={`tooltip-${account}`} >
+                    <strong>{account}</strong>.
+                  </Tooltip>
+                }
+              >
+                <Card.Title className="truncate text-lg" >Account: {account ? account : "Account denied"}</Card.Title>
+              </OverlayTrigger>
+              <Card.Text className="text-lg">$ {balance} MTK (MyToken)</Card.Text>
+              <form className="bg-white rounded">
+                <div className="mb-3">
+                  <input className="appearance-none border rounded w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="receiver" type="text" placeholder="Receiver" />
+                </div>
+                <div className="mb-3">
+                  <input className="appearance-none border rounded w-full h-12 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="amount" type="text" placeholder="Amount" />
+                </div>
+                <div className="flex justify-between w-full">
+                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded focus:outline-none focus:shadow-outline w-2/5 h-12" type="button" onClick={mint}>
+                    Mint
+                  </button>
+                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded focus:outline-none focus:shadow-outline w-2/5 h-12" type="button" onClick={getTotalSupply}>
+                    Get Total Supply
+                  </button>
 
-                {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={send}>
-                  Transfer
-                </button> */}
-              </div>
-              <div className="mt-3">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={transfer}>
-                  Transfer
-                </button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <div className="w-full h-auto flex justify-center">
-            <Button
-              onClick={() => web3Api.provider.request({ method: 'eth_requestAccounts' })}
-            >
-              Connect Wallets
-            </Button>
-          </div>
-        )}
+                  {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={send}>
+                    Transfer
+                  </button> */}
+                </div>
+                <div className="flex justify-between w-full mt-3">
+                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded focus:outline-none focus:shadow-outline w-2/5 h-12" type="button" onClick={transfer}>
+                    Transfer
+                  </button>
+                
+                </div>
+              </form>
+            </>
+          ) : (
+            <div className="w-full h-auto flex justify-center">
+              <Button
+                onClick={() => web3Api.provider.request({ method: 'eth_requestAccounts' })}
+              >
+                Connect Wallets
+              </Button>
+            </div>
+          )}
 
 
-      </Card.Body>
-    </Card>
+        </Card.Body>
+      </Card>
+    </>
   )
 }
 
