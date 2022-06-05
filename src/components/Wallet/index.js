@@ -19,50 +19,57 @@ const Wallet = () => {
   const [shouldReload, reload] = useState(false);
   const reloadEffect = () => reload(!shouldReload)
 
-  const [receiver, setReceiver] = useState(null);
-  const [amount, setAmount] = useState(null);
-
   const setAccountLister = (provider) => {
     provider.on("accountChanged", accounts => setAccount(accounts[0]))
   }
 
-  useEffect(() => {
-    const loadProvider = async () => {
-      const provider = await detectEthereumProvider()
-      const contract = await loadContract("MyContract", provider)
+  window.ethereum.enable(); // get permission to access accounts
 
-      console.log(contract)
-
-      if (provider) {
-        setAccountLister(provider)
-        setWeb3Api({
-          provider,
-          web3: new Web3(provider),
-          contract
-        })
-      } else {
-        alert("Please Install Metamask")
-      }
-    }
+  // detect Metamask account change
+  window.ethereum.on('accountsChanged', function (accounts) {
     loadProvider()
+  });
+
+  const loadProvider = async () => {
+    const provider = await detectEthereumProvider()
+    const contract = await loadContract("MyContract", provider)
+
+    console.log(contract)
+
+    if (provider) {
+      setAccountLister(provider)
+      setWeb3Api({
+        provider,
+        web3: new Web3(provider),
+        contract
+      })
+    } else {
+      alert("Please Install Metamask")
+    }
+  }
+  useEffect(() => {
+    loadProvider()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getAccount = async () => {
+    const accounts = await web3Api.web3.eth.getAccounts()
+    // web3Api.web3.eth.defaultAccount = accounts[0]
+    setAccount(accounts[0])
+  }
+
+  const loadBalance = async () => {
+    const { contract, web3 } = web3Api
+    const balance = await contract.balanceOf(account)
+    setBalance(web3.utils.fromWei(balance, "ether"))
+  }
+
   useEffect(() => {
-    const getAccount = async () => {
-      const accounts = await web3Api.web3.eth.getAccounts()
-      // web3Api.web3.eth.defaultAccount = accounts[0]
-      setAccount(accounts[0])
-    }
     web3Api.web3 && getAccount() && reloadEffect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3Api.web3]);
 
   useEffect(() => {
-    const loadBalance = async () => {
-      const { contract, web3 } = web3Api
-      const balance = await contract.balanceOf(account)
-      setBalance(web3.utils.fromWei(balance, "ether"))
-    }
     account && loadBalance()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, shouldReload]);
@@ -88,21 +95,29 @@ const Wallet = () => {
   const getTotalSupply = useCallback(async () => {
     const { contract, web3 } = web3Api
     const totalSupply = await contract.totalSupply()
-    console.log( web3.utils.fromWei(totalSupply, 'ether'))
+    console.log(web3.utils.fromWei(totalSupply, 'ether'))
     alert(`Total supply: ${web3.utils.fromWei(totalSupply, 'ether')} ETH`)
     reloadEffect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3Api, account])
 
+  const transfer = useCallback(async () => {
+    const { contract, web3 } = web3Api
+    const amount = document.getElementById('amount').value;
+    const receiver = document.getElementById('receiver').value;
 
-  // const send = async () => {
-  //   const { contract, web3 } = web3Api
-  //   await contract.send(account, {
-  //     receiver,
-  //     amount: web3.utils.toWei(amount.toString(), "ether")
-  //   })
-  //   reloadEffect()
-  // }
+    console.log(`from: ${account} to: ${receiver} amount: ${amount} `)
+
+    await contract.transfer(
+      receiver,
+      web3.utils.toWei(amount.toString(), "ether"),
+      {
+        from: account
+      }
+    ).then((reloadEffect()))
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [web3Api, account])
 
   return (
     <Card className="w-96 h-auto">
@@ -137,9 +152,15 @@ const Wallet = () => {
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={getTotalSupply}>
                   Get Total Supply
                 </button>
+
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={send}>
                   Transfer
                 </button> */}
+              </div>
+              <div className="mt-3">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline w-36 h-12" type="button" onClick={transfer}>
+                  Transfer
+                </button>
               </div>
             </form>
           </>

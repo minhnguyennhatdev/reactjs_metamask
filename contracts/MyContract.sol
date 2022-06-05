@@ -4,7 +4,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyContract is ERC20 {
   address public admin;
-  mapping(address => uint) balance;
 
   constructor(uint256 _supply) ERC20("MyToken", "MTK") {
     _mint(msg.sender, _supply *(10 ** decimals()));
